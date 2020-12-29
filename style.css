@@ -39,7 +39,7 @@ a:hover {
 
 nav {
   display: flex;
-  background-color: #ff6600;
+  background-color: #6ed6e9;
   align-items: center;
   padding: 5px 20px;
   border-radius: 3px 3px 0 0;
@@ -220,6 +220,13 @@ form > hr {
   color:rgba(172, 60, 182, 0.856);
 }
 
+.fa-trash-alt:hover{
+  color: rgb(105, 5, 5)
+}
+
+nav > a {
+  padding: 10px
+}
 
 /** responsive queries for tightening things up for mobile. */
 

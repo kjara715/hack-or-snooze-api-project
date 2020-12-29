@@ -110,10 +110,13 @@ $(async function() {
     //ok so after submitting the form, we want to most likely create the html for "My Stories here..."
     $("#my-articles").empty(); //empty the list first so that we don't keep adding duplicates
     for (let story of currentUser.ownStories) {
-      const result = generateStoryHTML(story);
-      $(`<i class="fas fa-trash-alt"></i>`).insertBefore("i")
+      const result = generateMyStoryHTML(story);
       $ownStories.append(result);
     }
+
+    // if $("#my-articles")
+    // $("li").append(`<i class="fas fa-trash-alt"></i>`)
+      // $(`<i class="fas fa-trash-alt"></i>`).insertBefore("i")
   })
 
   /**
@@ -159,6 +162,17 @@ $(async function() {
       $favoritedArticles.append(result);
     }
 
+  })
+
+  $("body").on("click", ".fa-trash-alt", async function(){
+    $(this).parent().remove() //want the story to physically be removed from the DOM of the my stories page
+
+    const $storyLi = $(this).parent() //gets the parent of the favorite button 
+    const storyId = $storyLi.attr('id')
+
+    await storyList.deleteStory(currentUser, storyId) //its a method of story not user!
+    await generateStories()
+    alert('You story has been removed')
   })
 
   
@@ -247,6 +261,26 @@ $(async function() {
    * A function to render HTML for an individual Story instance
    */
 
+  function generateMyStoryHTML(story){
+    let hostName = getHostName(story.url);
+
+    // render story markup
+    const storyMarkup = $(`
+      <li id="${story.storyId}">
+        <i class="fas fa-trash-alt"></i>
+        <i class="fas fa-star"></i>
+        <a class="article-link" href="${story.url}" target="a_blank">
+          <strong>${story.title}</strong>
+        </a>
+        <small class="article-author">by ${story.author}</small>
+        <small class="article-hostname ${hostName}">(${hostName})</small>
+        <small class="article-username">posted by ${story.username}</small>
+      </li>
+    `);
+
+    return storyMarkup;
+  }
+
   function generateStoryHTML(story) {
     let hostName = getHostName(story.url);
 
@@ -300,10 +334,12 @@ $(async function() {
   
     //populate the users own stories
     for (let story of currentUser.ownStories) {
-      const result = generateStoryHTML(story);
-      $(`<i class="fas fa-trash-alt"></i>`).insertBefore("i")
+      const result = generateMyStoryHTML(story);
       $ownStories.append(result);
     }
+
+    // if currentUser.ownStories.conatains()
+    // // $(`<i class="fas fa-trash-alt"></i>`).insertBefore("i")
   }
 
   /* simple function to pull the hostname from a URL */
