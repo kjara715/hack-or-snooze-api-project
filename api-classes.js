@@ -62,6 +62,19 @@ class StoryList {
     // this function should return the newly created story so it can be used in
     // the script.js file where it will be appended to the DOM
   }
+
+  async deleteStory(user, storyId) {
+    const token = user.loginToken 
+    const response = await axios({
+      url: 
+      `${BASE_URL}/stories/${storyId}`,
+      method: "DELETE",
+      data: {
+        token
+      }
+    });    
+  }
+  
 }
 
 
@@ -188,11 +201,14 @@ class User {
   async deleteFavorite(user, storyId) {
     const username = user.username //defined when user was created
     const token=user.loginToken //defined when use was created
-    const response = await axios.delete(`${BASE_URL}/users/${username}/favorites/${storyId}`, 
-      {
+    const response = await axios({
+      url: 
+      `${BASE_URL}/users/${username}/favorites/${storyId}`,
+      method: "DELETE",
+      data: {
         token
       }
-    );
+    });
 
     const favorites= response.data.user.favorites
     user.favorites=favorites

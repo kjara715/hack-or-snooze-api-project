@@ -61,8 +61,6 @@ $(async function() {
     let username = $("#create-account-username").val();
     let password = $("#create-account-password").val();
 
-   
-
     // call the create method, which calls the API and then builds a new user instance
     const newUser = await User.create(username, password, name);
     currentUser = newUser; //both creating a new user and logging in to the existing user defines this currentUser
@@ -90,7 +88,8 @@ $(async function() {
   //Go to the submit story form when user clicks on "Submit a Story" anchor tag in navbar
   $submitStory.on("click", function(){
     //want to show the form to submit story(default is hidden)
-    $submitForm.show()
+    $submitForm.show();
+    $allStoriesList.show();
   })
 
   //Once the values are entered...we need an eventlistener on the form to add the new story
@@ -107,6 +106,14 @@ $(async function() {
 
     await storyList.addStory(currentUser, newStory) //call addStory and pass in what is needed
     await generateStories() //regenerate the list with this function which will add the new HTML of
+
+    //ok so after submitting the form, we want to most likely create the html for "My Stories here..."
+    $("#my-articles").empty(); //empty the list first so that we don't keep adding duplicates
+    for (let story of currentUser.ownStories) {
+      const result = generateStoryHTML(story);
+      $(`<i class="fas fa-trash-alt"></i>`).insertBefore("i")
+      $ownStories.append(result);
+    }
   })
 
   /**
@@ -154,15 +161,22 @@ $(async function() {
 
   })
 
+  
+
 
   $("body").on("click", "#nav-favorites", function(){
     //append each favorite the the favorited-articles ul
-
+    hideElements();
     $favoritedArticles.show(); //want to show the favorites (default set to hidden)
-    $allStoriesList.hide(); //hide the rest of the articles
+   
 
   })
 
+  $("body").on("click", "#nav-my-stories", function(){
+    hideElements();
+    $ownStories.show();
+    
+  })
 
   /**
    * On page load, checks local storage to see if the user is already logged in.
@@ -196,14 +210,14 @@ $(async function() {
 
     // reset those forms
     $loginForm.trigger("reset");
-    $createAccountForm.trigger("reset");
+    $createAccountForm.trigger("reset"); //hmm maybe can use these to reset the submit story forms?
 
     // show the stories
     $allStoriesList.show();
 
-    // update the navigation bar
-    showNavForLoggedInUser();
+    checkIfLoggedIn();
 
+    
 
    
 
@@ -274,6 +288,22 @@ $(async function() {
     $favorites.show();
     $myStories.show();
     // add
+    $("#profile-name").html(`<div id="profile-name"><b>Name:</b> ${currentUser.name}</div>`)
+    $("#profile-username").html(`<div id="profile-username"><b>Username:</b> ${currentUser.username}</div>`)
+    $("#profile-account-date").html(`<div id="profile-account-date"><b>Account Created:</b> ${currentUser.createdAt}</div>`)
+
+    //populate the users favorited stories
+    for (let story of currentUser.favorites) {
+      const result = generateStoryHTML(story);
+      $favoritedArticles.append(result);
+    }
+  
+    //populate the users own stories
+    for (let story of currentUser.ownStories) {
+      const result = generateStoryHTML(story);
+      $(`<i class="fas fa-trash-alt"></i>`).insertBefore("i")
+      $ownStories.append(result);
+    }
   }
 
   /* simple function to pull the hostname from a URL */
@@ -297,7 +327,6 @@ $(async function() {
     if (currentUser) {
       localStorage.setItem("token", currentUser.loginToken);
       localStorage.setItem("username", currentUser.username);
-      localStorage.setItem("favorites", currentUser.favorites);
     }
   }
 });
