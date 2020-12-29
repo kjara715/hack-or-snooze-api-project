@@ -43,25 +43,25 @@ class StoryList {
    * Returns the new story object
    */
 
-  // async addStory(user, newStory) {
-  //   const token = user.loginToken //each user has a token(defined as loginToken when a user is created)
-  //   //need to grab the token from the user
-  //   const response = await axios.post(`${BASE_URL}/stories`, {
-  //     token //shorthand....token: (the variable token)
-  //     story: 
-  //     {author: newStory.author, //so newStory is just an object which has a property of author, title, and url (we will grab this from the dom)
-  //      title: newStory.title, 
-  //      url: newStory.url}
-  //   })
+  async addStory(user, newStory) {
+    const token = user.loginToken //each user has a token(defined as loginToken when a user is created)
+    //need to grab the token from the user
+    const response = await axios.post(`${BASE_URL}/stories`, {
+      token, //shorthand....token: (the variable token)
+      story: 
+      {author: newStory.author, //so newStory is just an object which has a property of author, title, and url (we will grab this from the dom)
+       title: newStory.title, 
+       url: newStory.url}
+    })
 
-  //   const story=new Story(response.data.story) //creates a new instance of story (defined below)
-  //   this.stories.unshift(story)
-  //   user.ownStories.unshift(story)
-  //   return story
-  //   // TODO - Implement this functions!
-  //   // this function should return the newly created story so it can be used in
-  //   // the script.js file where it will be appended to the DOM
-  // }
+    const story=new Story(response.data.story) //creates a new instance of story (defined below)
+    this.stories.unshift(story)
+    user.ownStories.unshift(story)
+    return story
+    // TODO - Implement this functions!
+    // this function should return the newly created story so it can be used in
+    // the script.js file where it will be appended to the DOM
+  }
 }
 
 
@@ -164,6 +164,41 @@ class User {
     existingUser.favorites = response.data.user.favorites.map(s => new Story(s));
     existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
     return existingUser;
+  }
+
+  async addFavorite(user, storyId) {
+    //need to pass in username and storyId
+    //maybe instead of passing in the username only, pass in the entire user object so that we have access to things like the token
+    const username = user.username //defined when user was created
+    const token= user.loginToken //defined when use was created
+    const response = await axios.post(`${BASE_URL}/users/${username}/favorites/${storyId}`, 
+      {
+        token
+      }
+    );
+
+    const favorites= response.data.user.favorites
+    user.favorites=favorites
+
+     //?
+  }
+
+  //method to delete favorites...same structure as adding favorites but with a "delete" method
+
+  async deleteFavorite(user, storyId) {
+    const username = user.username //defined when user was created
+    const token=user.loginToken //defined when use was created
+    const response = await axios.delete(`${BASE_URL}/users/${username}/favorites/${storyId}`, 
+      {
+        token
+      }
+    );
+
+    const favorites= response.data.user.favorites
+    user.favorites=favorites
+    
+    //do we even need to return this?
+    
   }
 }
 

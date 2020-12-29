@@ -211,6 +211,15 @@ form > hr {
   margin: 10px 0;
 }
 
+.fa-star:hover {
+  color:rgba(211, 175, 214, 0.856);
+}
+  
+
+.favorited {
+  color:rgba(172, 60, 182, 0.856);
+}
+
 
 /** responsive queries for tightening things up for mobile. */
 

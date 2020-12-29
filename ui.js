@@ -2,13 +2,19 @@ $(async function() {
   // cache some selectors we'll be using quite a bit
   const $allStoriesList = $("#all-articles-list");
   const $submitForm = $("#submit-form");
+  const $author=$("#author");
+  const $title=$("#title");
+  const $url=$("#url");
   const $filteredArticles = $("#filtered-articles");
   const $loginForm = $("#login-form");
   const $createAccountForm = $("#create-account-form");
   const $ownStories = $("#my-articles");
   const $navLogin = $("#nav-login");
   const $navLogOut = $("#nav-logout");
-  const $userProfileInfo=$("#user-profile") //grab the user profile from html...right now it never shows the actual user profile info
+  const $submitStory=$("#nav-submit-story");
+  const $favorites=$("#nav-favorites");
+  const $myStories=$("#nav-my-stories");
+  const $favoritedArticles = $("#favorited-articles");
 
   // global storyList variable
   let storyList = null;
@@ -35,9 +41,9 @@ $(async function() {
     // set the global user to the user instance
     currentUser = userInstance; 
      //testing
-    $("profile-name").html(`<div id="profile-name">Name: ${currentUser.name}</div>`)
-    $("profile-username").html(`<div id="profile-username">Username: ${currentUser.username}</div>`)
-    $("profile-account-date").html(`<div id="profile-account-date">Account Created: ${currentUser.createdAt}</div>`)
+    $("#profile-name").html(`<div id="profile-name"><b>Name:</b> ${currentUser.name}</div>`)
+    $("#profile-username").html(`<div id="profile-username"><b>Username:</b> ${currentUser.username}</div>`)
+    $("#profile-account-date").html(`<div id="profile-account-date"><b>Account Created:</b> ${currentUser.createdAt}</div>`)
     syncCurrentUserToLocalStorage();
     loginAndSubmitForm();
   });
@@ -55,19 +61,17 @@ $(async function() {
     let username = $("#create-account-username").val();
     let password = $("#create-account-password").val();
 
+   
+
     // call the create method, which calls the API and then builds a new user instance
     const newUser = await User.create(username, password, name);
     currentUser = newUser; //both creating a new user and logging in to the existing user defines this currentUser
 
-    $userProfileInfo.html(
-      `<div id="profile-name">Name: ${currentUser.name}</div>
-      <div id="profile-username">Username: ${currentUser.username}</div>
-      <div id="profile-account-date">Account Created: ${currentUser.createdAt}</div>`
-    )
-    // $("profile-name").replaceWith(`<div id="profile-name">Name: ${currentUser.name}</div>`)
-    // $("profile-username").replaceWith(`<div id="profile-username">Username: ${currentUser.username}</div>`)
-    // $("profile-account-date").replaceWith(`<div id="profile-account-date">Account Created: ${currentUser.createdAt}</div>`)
+    $("#profile-name").html(`<div id="profile-name"><b>Name:</b> ${currentUser.name}</div>`)
+    $("#profile-username").html(`<div id="profile-username"><b>Username:</b> ${currentUser.username}</div>`)
+    $("#profile-account-date").html(`<div id="profile-account-date"><b>Account Created:</b> ${currentUser.createdAt}</div>`)
 
+    
     syncCurrentUserToLocalStorage();
     loginAndSubmitForm(); //both creating a new user and logging in to an existing user calls this loginAndSubmitForm...
   });
@@ -82,6 +86,28 @@ $(async function() {
     // refresh the page, clearing memory
     location.reload();
   });
+
+  //Go to the submit story form when user clicks on "Submit a Story" anchor tag in navbar
+  $submitStory.on("click", function(){
+    //want to show the form to submit story(default is hidden)
+    $submitForm.show()
+  })
+
+  //Once the values are entered...we need an eventlistener on the form to add the new story
+  //Below
+  $submitForm.on("submit", async function(e){
+    e.preventDefault();
+    //define the object to pass in
+    const newStory={
+    }
+    //define the properties needed to pass in to the addStory method(grabbed from the DOM)
+    newStory.title=$title.val()
+    newStory.author=$author.val()
+    newStory.url=$url.val()
+
+    await storyList.addStory(currentUser, newStory) //call addStory and pass in what is needed
+    await generateStories() //regenerate the list with this function which will add the new HTML of
+  })
 
   /**
    * Event Handler for Clicking Login
@@ -103,6 +129,40 @@ $(async function() {
     await generateStories();
     $allStoriesList.show();
   });
+
+  $("body").on("click", ".fa-star", async function(){
+    $(this).toggleClass("favorited"); 
+    //will add logic so that if the class is favorited we will add the favorite else (or else if)
+    //it is not favorited then we will delete the favorite
+
+    const $storyLi = $(this).parent() //gets the parent of the favorite button 
+    const storyId = $storyLi.attr('id') //gives the storyId which is the same as the id of the element
+
+    //this if else logic will run the addFavorite method if star is highlighted (has favorited class) or deleteFavorite if it is unhighlighted
+    //(favorited class removed)
+    if($(this).hasClass("favorited")){
+      await currentUser.addFavorite(currentUser, storyId)
+    } else {
+      await currentUser.deleteFavorite(currentUser, storyId)
+    }
+     
+
+    for (let story of currentUser.favorites) {
+      const result = generateStoryHTML(story);
+      $favoritedArticles.append(result);
+    }
+
+  })
+
+
+  $("body").on("click", "#nav-favorites", function(){
+    //append each favorite the the favorited-articles ul
+
+    $favoritedArticles.show(); //want to show the favorites (default set to hidden)
+    $allStoriesList.hide(); //hide the rest of the articles
+
+  })
+
 
   /**
    * On page load, checks local storage to see if the user is already logged in.
@@ -179,6 +239,7 @@ $(async function() {
     // render story markup
     const storyMarkup = $(`
       <li id="${story.storyId}">
+        <i class="fas fa-star"></i>
         <a class="article-link" href="${story.url}" target="a_blank">
           <strong>${story.title}</strong>
         </a>
@@ -200,7 +261,8 @@ $(async function() {
       $filteredArticles,
       $ownStories,
       $loginForm,
-      $createAccountForm
+      $createAccountForm,
+      $favoritedArticles
     ];
     elementsArr.forEach($elem => $elem.hide());
   }
@@ -208,6 +270,10 @@ $(async function() {
   function showNavForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
+    $submitStory.show();
+    $favorites.show();
+    $myStories.show();
+    // add
   }
 
   /* simple function to pull the hostname from a URL */
@@ -231,6 +297,7 @@ $(async function() {
     if (currentUser) {
       localStorage.setItem("token", currentUser.loginToken);
       localStorage.setItem("username", currentUser.username);
+      localStorage.setItem("favorites", currentUser.favorites);
     }
   }
 });
