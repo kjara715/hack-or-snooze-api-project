@@ -190,9 +190,15 @@ class User {
       }
     );
 
+    const favorite=new Story(response.data.) //creates a new instance of story (defined below)
+    this.favorites.unshift(story)
+    user.ownStories.unshift(story)
+    return story
+
     const favorites= response.data.user.favorites
     user.favorites=favorites
 
+    return favorites
      //?
   }
 
@@ -212,6 +218,8 @@ class User {
 
     const favorites= response.data.user.favorites
     user.favorites=favorites
+
+    return favorites
     
     //do we even need to return this?
     
