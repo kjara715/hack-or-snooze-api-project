@@ -1,3 +1,4 @@
+let currentUser = null;
 $(async function() {
   // cache some selectors we'll be using quite a bit
   const $allStoriesList = $("#all-articles-list");
@@ -20,7 +21,7 @@ $(async function() {
   let storyList = null;
 
   // global currentUser variable
-  let currentUser = null;
+  
 
   await checkIfLoggedIn();
 
@@ -156,7 +157,7 @@ $(async function() {
       await currentUser.deleteFavorite(currentUser, storyId)
     }
      
-
+    $("#favorited-articles").empty()
     for (let story of currentUser.favorites) {
       const result = generateStoryHTML(story);
       $favoritedArticles.append(result);
@@ -287,7 +288,7 @@ $(async function() {
     // render story markup
     const storyMarkup = $(`
       <li id="${story.storyId}">
-        <i class="fas fa-star"></i>
+        <i class="fas fa-star ${currentUser.favorites.map( x => x.storyId).includes(story.storyId) ? "favorited": "''"}"></i>
         <a class="article-link" href="${story.url}" target="a_blank">
           <strong>${story.title}</strong>
         </a>
