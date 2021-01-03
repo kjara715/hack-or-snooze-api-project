@@ -197,6 +197,11 @@ class User {
      //?
   }
 
+  async getUsers(){
+    const response = await axios.get(`${BASE_URL}/users/`) //will give 25 users
+    response.data.users
+  }
+
   //method to delete favorites...same structure as adding favorites but with a "delete" method
 
   async deleteFavorite(user, storyId) {

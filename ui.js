@@ -59,10 +59,17 @@ $(async function() {
     evt.preventDefault(); // no page refresh
 
     // grab the required fields
-    let name = $("#create-account-name").val();
+    let name = $("#create-account-name").val(); //get values from form 
     let username = $("#create-account-username").val();
     let password = $("#create-account-password").val();
 
+    if(name === '' || username ==='' || password === ''){ 
+      $("#error-msg-1").remove() 
+      $createAccountForm.append(`<div id="error-msg-1"><b>All fields are required to create an account<b></'div'>`)
+      return
+    }
+
+    // if(username )
     // call the create method, which calls the API and then builds a new user instance
     const newUser = await User.create(username, password, name);
     currentUser = newUser; //both creating a new user and logging in to the existing user defines this currentUser
@@ -143,6 +150,7 @@ $(async function() {
   });
 
   $("body").on("click", ".fa-star", async function(){
+    $("#favorite-error").remove() 
     $(this).toggleClass("favorited"); 
     //will add logic so that if the class is favorited we will add the favorite else (or else if)
     //it is not favorited then we will delete the favorite
@@ -152,6 +160,11 @@ $(async function() {
 
     //this if else logic will run the addFavorite method if star is highlighted (has favorited class) or deleteFavorite if it is unhighlighted
     //(favorited class removed)
+    if(!currentUser){
+      $('.articles-container').append(`<div id="favorite-error"><b>Please log in or create an account to add favorites <b></div>`)
+      return
+    }
+
     if($(this).hasClass("favorited")){
       await currentUser.addFavorite(currentUser, storyId)
     } else {
@@ -174,7 +187,7 @@ $(async function() {
 
     await storyList.deleteStory(currentUser, storyId) //its a method of story not user!
     await generateStories()
-    alert('You story has been removed')
+    alert('Your story has been removed')
   })
 
   
@@ -323,6 +336,7 @@ $(async function() {
     $submitStory.show();
     $favorites.show();
     $myStories.show();
+    $("#favorite-error").remove() 
     // add
     $("#profile-name").html(`<div id="profile-name"><b>Name:</b> ${currentUser.name}</div>`)
     $("#profile-username").html(`<div id="profile-username"><b>Username:</b> ${currentUser.username}</div>`)
