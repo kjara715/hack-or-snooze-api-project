@@ -1,4 +1,5 @@
 
+let currentUser = null;
 $(async function() {
   // cache some selectors we'll be using quite a bit
   const $allStoriesList = $("#all-articles-list");
@@ -21,7 +22,7 @@ $(async function() {
   let storyList = null;
 
   // global currentUser variable
-  let currentUser = null;
+  
   
 
   await checkIfLoggedIn();
@@ -137,6 +138,7 @@ $(async function() {
     $loginForm.slideToggle();
     $createAccountForm.slideToggle();
     $allStoriesList.toggle();
+    $("#favorite-error").remove()
   });
 
   /**
@@ -195,7 +197,11 @@ $(async function() {
 
   $("body").on("click", "#nav-favorites", function(){
     //append each favorite the the favorited-articles ul
+    $('#no-favorites').remove()
     hideElements();
+    if (currentUser.favorites.length === 0){//if user has no stories
+      $favoritedArticles.append(`<div id="no-favorites">Hello <b>${currentUser.username}</b>. You currently have no favorites. To favorite a story, please click on the star icon next to a story. </div>`)
+    } 
     $favoritedArticles.show(); //want to show the favorites (default set to hidden)
    
 
@@ -203,8 +209,11 @@ $(async function() {
 
   $("body").on("click", "#nav-my-stories", function(){
     hideElements();
+    $('#no-stories').remove()
+    if (currentUser.ownStories.length === 0){//if user has no stories
+      $ownStories.append(`<div id="no-stories">Hello <b>${currentUser.username}</b>. You currently have no stories. To create a story, click the "Submit a Story" link.</div>`)
+    } 
     $ownStories.show();
-    
   })
 
   /**

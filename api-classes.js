@@ -73,7 +73,18 @@ class StoryList {
         token
       }
     });    
+
+    for(let story of currentUser.ownStories){
+      if(story.storyId === storyId){
+        const index = currentUser.ownStories.indexOf(story) //gives the index of the item with the matching story id
+        currentUser.ownStories.splice(index,1)
+      }
+
+    } 
+    
   }
+
+  
   
 }
 
