@@ -125,6 +125,8 @@ class User {
       }
     });
 
+    
+
     // build a new User instance from the API response
     const newUser = new User(response.data.user); //creates a new instance of user, name we set is newUser
 

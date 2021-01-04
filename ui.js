@@ -46,16 +46,27 @@ $(async function() {
     }
 
     // call the login static method to build a user instance
+
     const userInstance = await User.login(username, password);
+   
+    // catch {
+    //   $loginForm.append(`<div id="error-msg-4"><b>Incorrect credentials<b></'div'>`)
+    //   return
+    // }
+
+      currentUser = userInstance; 
+      //testing
+     $("#profile-name").html(`<div id="profile-name"><b>Name:</b> ${currentUser.name}</div>`)
+     $("#profile-username").html(`<div id="profile-username"><b>Username:</b> ${currentUser.username}</div>`)
+     $("#profile-account-date").html(`<div id="profile-account-date"><b>Account Created:</b> ${currentUser.createdAt}</div>`)
+     syncCurrentUserToLocalStorage();
+     loginAndSubmitForm();
+
+    }
+    
     // set the global user to the user instance
-    currentUser = userInstance; 
-     //testing
-    $("#profile-name").html(`<div id="profile-name"><b>Name:</b> ${currentUser.name}</div>`)
-    $("#profile-username").html(`<div id="profile-username"><b>Username:</b> ${currentUser.username}</div>`)
-    $("#profile-account-date").html(`<div id="profile-account-date"><b>Account Created:</b> ${currentUser.createdAt}</div>`)
-    syncCurrentUserToLocalStorage();
-    loginAndSubmitForm();
-  });
+   
+  );
 
   /**
    * Event listener for signing up.
@@ -78,7 +89,14 @@ $(async function() {
 
     // if(username )
     // call the create method, which calls the API and then builds a new user instance
+    
     const newUser = await User.create(username, password, name);
+    
+    // catch(err) {
+    //   $createAccountForm.append(`<div id="error-msg-3"><b>This username has been taken. Please choose another one.<b></'div'>`)
+    //   return
+    // }
+    
     currentUser = newUser; //both creating a new user and logging in to the existing user defines this currentUser
 
     $("#profile-name").html(`<div id="profile-name"><b>Name:</b> ${currentUser.name}</div>`)
