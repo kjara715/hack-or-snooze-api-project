@@ -39,6 +39,12 @@ $(async function() {
     const username = $("#login-username").val();
     const password = $("#login-password").val();
 
+    if(username ==='' || password === ''){ 
+      $("#error-msg-2").remove() 
+      $loginForm.append(`<div id="error-msg-2"><b>All fields are required to log in<b></'div'>`)
+      return
+    }
+
     // call the login static method to build a user instance
     const userInstance = await User.login(username, password);
     // set the global user to the user instance
